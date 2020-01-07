@@ -10,11 +10,11 @@ import UIKit
 
 class Cell: NSObject, Codable {
     var caption: String
-    var image: String
+    var fileName: String
     
-    init(caption: String, image: String){
+    init(caption: String, fileName: String){
     self.caption = caption
-    self.image = image
+    self.fileName = fileName
     }
 }
 
