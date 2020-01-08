@@ -41,10 +41,11 @@ UINavigationControllerDelegate {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return pictureArray.count
     }
-   // override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //let cell = tableView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as? Cell
-     //   return cell
-  //  }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as? labelCell
+        return cell!
+    }
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
      if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
             let picture = pictureArray[indexPath.item]
