@@ -75,6 +75,16 @@ UINavigationControllerDelegate {
      if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
             let picture = pictureArray[indexPath.item]
             vc.selectedImage = picture.caption
+            let ac = UIAlertController(title: "Rename Person", message: nil, preferredStyle: .alert)
+                   ac.addTextField()
+                   
+                   ac.addAction(UIAlertAction(title: "OK", style: .default) { [weak self,
+                       weak ac] _ in
+                       guard let newName = ac?.textFields?[0].text else{ return }
+                       Cell.caption = newName
+                    self?.imageLoaded()
+                       self?.tableView.reloadData()
+                       })
             imageLoaded()
             navigationController?.pushViewController(vc, animated: true)
             
