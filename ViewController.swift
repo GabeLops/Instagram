@@ -81,7 +81,7 @@ UINavigationControllerDelegate {
                    ac.addAction(UIAlertAction(title: "OK", style: .default) { [weak self,
                        weak ac] _ in
                        guard let newName = ac?.textFields?[0].text else{ return }
-                       Cell.caption = newName
+                       picture.caption = newName
                     self?.imageLoaded()
                        self?.tableView.reloadData()
                        })
