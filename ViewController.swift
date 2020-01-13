@@ -43,7 +43,7 @@ UINavigationControllerDelegate {
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let image = info[.originalImage] as? UIImage else {return}
+        guard let image = info[.editedImage] as? UIImage else { return }
         
         let imageName = UUID().uuidString
         let imagePath = getDocumentsDirectory().appendingPathComponent(imageName)
@@ -52,11 +52,10 @@ UINavigationControllerDelegate {
             try? jpegData.write(to: imagePath)
         }
         
-        let person = Cell(caption: "Tap to add caption", fileName: "Any")
-        pictureArray.append(person)
+        let photo = Cell(caption: "Enter Caption", fileName: imageName)
+        pictureArray.append(photo)
         imageLoaded()
-        tableView?.reloadData()
-        
+        tableView.reloadData()
         dismiss(animated: true)
     }
     
@@ -65,42 +64,47 @@ UINavigationControllerDelegate {
         return pictureArray.count
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as? labelCell
-        let picture = pictureArray[indexPath.row]
-        cell?.name.text = picture.caption + " \(picture.fileName)"
-        return cell!
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let photo = pictureArray[indexPath.row]
+        let path = getDocumentsDirectory().appendingPathComponent(photo.fileName)
+        
+        cell.textLabel?.text = photo.caption
+        //shows preview of image in tableview
+        cell.imageView?.image = UIImage(contentsOfFile: path.path)
+        return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-     if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
-            let picture = pictureArray[indexPath.row]
-            let path = getDocumentsDirectory().appendingPathComponent(picture.fileName)
-            
-            vc.selectedImage = picture
-            vc.path = path
-            let ac = UIAlertController(title: "Rename Person", message: nil, preferredStyle: .alert)
-                   ac.addTextField()
-                   
-                   ac.addAction(UIAlertAction(title: "OK", style: .default) { [weak self,
-                       weak ac] _ in
-                       guard let newName = ac?.textFields?[0].text else{ return }
-                       picture.caption = newName
-                        self?.imageLoaded()
-                       self?.tableView.reloadData()
-                       })
-                   ac.addAction(UIAlertAction(title: "Delete", style: .destructive){
-                   [weak self]  _ in
-                   self?.pictureArray.remove(at: indexPath.item)
-                   self?.imageLoaded()
-                   self?.tableView.reloadData()
-                    })
-            imageLoaded()
-            //present(ac, animated: true)
-            navigationController?.pushViewController(vc, animated: true)
-            
-        
-        }
-    }
+            let photo = pictureArray[indexPath.row]
+            let path = getDocumentsDirectory().appendingPathComponent(photo.fileName)
+                
+                let ac = UIAlertController(title: "Add Caption", message: nil, preferredStyle: .alert)
+                ac.addTextField()
+                ac.addAction(UIAlertAction(title: "Add Caption", style: .default, handler: {
+                    [weak self, weak ac] _ in
+                    guard let caption = ac?.textFields?[0].text else { return }
+                    photo.caption = caption
+                    self?.imageLoaded()
+                    self?.tableView.reloadData()
+                }))
+                ac.addAction(UIAlertAction(title: "Delete", style: .destructive){
+                    [weak self]  _ in
+                    self?.pictureArray.remove(at: indexPath.item)
+                    self?.imageLoaded()
+                    self?.tableView.reloadData()
+                })
+                ac.addAction(UIAlertAction(title: "View", style: .default, handler: {
+                    [weak self] _ in
+                    if let vc = self?.storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
+                        vc.selectedImage = photo
+                        vc.path = path
+                        self?.navigationController?.pushViewController(vc, animated: true)
+                    }
+                } ))
+                ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+                present(ac, animated: true)
+            }
+    
     func imageLoaded() {
         let jsonEncoder = JSONEncoder()
         if let imageLoad = try? jsonEncoder.encode(pictureArray) {
