@@ -52,7 +52,7 @@ UINavigationControllerDelegate {
             try? jpegData.write(to: imagePath)
         }
         
-        let person = Cell(caption: "LOL", fileName: "JO")
+        let person = Cell(caption: "Tap to add caption", fileName: "Any")
         pictureArray.append(person)
         imageLoaded()
         tableView?.reloadData()
@@ -67,14 +67,17 @@ UINavigationControllerDelegate {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as? labelCell
         let picture = pictureArray[indexPath.row]
-        cell?.name.text = (picture.caption)
+        cell?.name.text = picture.caption + " \(picture.fileName)"
         return cell!
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
      if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
-            let picture = pictureArray[indexPath.item]
-            vc.selectedImage = picture.caption
+            let picture = pictureArray[indexPath.row]
+            let path = getDocumentsDirectory().appendingPathComponent(picture.fileName)
+            
+            vc.selectedImage = picture
+            vc.path = path
             let ac = UIAlertController(title: "Rename Person", message: nil, preferredStyle: .alert)
                    ac.addTextField()
                    
@@ -82,13 +85,20 @@ UINavigationControllerDelegate {
                        weak ac] _ in
                        guard let newName = ac?.textFields?[0].text else{ return }
                        picture.caption = newName
-                    self?.imageLoaded()
+                        self?.imageLoaded()
                        self?.tableView.reloadData()
                        })
+                   ac.addAction(UIAlertAction(title: "Delete", style: .destructive){
+                   [weak self]  _ in
+                   self?.pictureArray.remove(at: indexPath.item)
+                   self?.imageLoaded()
+                   self?.tableView.reloadData()
+                    })
             imageLoaded()
+            //present(ac, animated: true)
             navigationController?.pushViewController(vc, animated: true)
             
-            
+        
         }
     }
     func imageLoaded() {

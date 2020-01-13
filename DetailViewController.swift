@@ -10,12 +10,16 @@ import UIKit
 
 class DetailViewController: UIViewController {
     @IBOutlet var imageView: UIImageView!
-    var selectedImage: String?
+    var selectedImage: Cell?
+    var path: URL?
+    
     override func viewDidLoad() {
            super.viewDidLoad()
         title = "Picture"
+        if selectedImage != nil {
+             imageView.image = UIImage(contentsOfFile: path!.path)
+         }
     }
-    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.hidesBarsOnTap = true
